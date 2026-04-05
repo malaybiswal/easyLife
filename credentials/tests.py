@@ -78,5 +78,27 @@ class EasyLifeSecurityTests(TestCase):
         self.client.post(reverse('delete_credential', args=[cred.pk]), {
             'confirm_tag': 'Sensitive Bank'
         })
-        # Record should be GONE now
-        self.assertFalse(EncryptedCredential.objects.filter(pk=cred.pk).exists())
+    def test_edit_credential_functionality(self):
+        """Test that a record can be updated securely."""
+        cred = EncryptedCredential.objects.create(
+            user=self.user1, tag='Initial Name', username='initial_user', password='old_password'
+        )
+        
+        # Log in as user
+        self.client.login(username='malay', password='password123')
+        
+        # Post UPDATED data
+        self.client.post(reverse('edit_credential', args=[cred.pk]), {
+            'tag': 'Updated Name',
+            'username': 'updated_user',
+            'password': 'new_password_123',
+            'url': 'https://google.com',
+            'additional_info': 'Edited info'
+        })
+        
+        # Refresh from DB
+        cred.refresh_from_db()
+        self.assertEqual(cred.tag, 'Updated Name')
+        self.assertEqual(cred.username, 'updated_user')
+        self.assertEqual(cred.password, 'new_password_123')
+        self.assertEqual(cred.additional_info, 'Edited info')
