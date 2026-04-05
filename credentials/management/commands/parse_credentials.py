@@ -179,6 +179,15 @@ class Command(BaseCommand):
                 if not res['password']: res['password'] = p_part
                 else: res['info'].append(p_part)
                 continue
+            
+            if ' ' in cell and '@' not in cell and '.' not in cell:
+                parts = cell.split(' ', 1)
+                u_part, p_part = parts[0].strip(), parts[1].strip()
+                if not res['username']: res['username'] = u_part
+                else: res['info'].append(u_part)
+                if not res['password']: res['password'] = p_part
+                else: res['info'].append(p_part)
+                continue
 
             if '@' in cell and '.' in cell:
                 if not res['username']: res['username'] = cell; continue
