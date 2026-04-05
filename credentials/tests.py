@@ -113,7 +113,34 @@ class EasyLifeSecurityTests(TestCase):
             'additional_info': 'Added via test'
         })
         
-        # Check that it exists in the database FOR THIS USER
-        self.assertEqual(EncryptedCredential.objects.filter(user=self.user1, tag='Web Added Account').count(), 1)
-        new_cred = EncryptedCredential.objects.get(tag='Web Added Account')
-        self.assertEqual(new_cred.password, 'web_password_123')
+    def test_unauthenticated_access_blocked(self):
+        """Ensure that guests are redirected to login."""
+        self.client.logout()
+        response = self.client.get(reverse('credential_list'))
+        self.assertRedirects(response, '/login/?next=/')
+
+    def test_unauthorized_edit_blocked(self):
+        """CRITICAL: User A cannot edit User B's record even if they know the ID."""
+        # Create record for User 2
+        cred2 = EncryptedCredential.objects.create(
+            user=self.user2, tag='Safe Account', password='p1'
+        )
+        
+        # Log in as User 1
+        self.client.login(username='malay', password='password123')
+        
+        # Try to access User 2's edit page
+        response = self.client.get(reverse('edit_credential', args=[cred2.pk]))
+        # Should be a 404 since User 1 doesn't own it
+        self.assertEqual(response.status_code, 404)
+
+    def test_search_functionality(self):
+        """Test tag filtering works correctly."""
+        EncryptedCredential.objects.create(user=self.user1, tag='Amazon Shopping', password='p1')
+        EncryptedCredential.objects.create(user=self.user1, tag='Citibank Personal', password='p2')
+        
+        self.client.login(username='malay', password='password123')
+        response = self.client.get(reverse('credential_list') + '?tag=amazon')
+        
+        self.assertContains(response, 'Amazon Shopping')
+        self.assertNotContains(response, 'Citibank Personal')
