@@ -80,19 +80,25 @@ TEMPLATES = [
 WSGI_APPLICATION = 'easylife.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': env('DB_NAME', default='easylife'),
-        'USER': env('DB_USER', default='malay'),
-        'PASSWORD': env('DB_PASSWORD', default=''),
-        'HOST': env('DB_HOST', default='192.168.1.100'),
-        'PORT': env('DB_PORT', default='3306'),
+import sys
+if 'test' in sys.argv:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': env('DB_NAME', default='easylife'),
+            'USER': env('DB_USER', default='malay'),
+            'PASSWORD': env('DB_PASSWORD', default=''),
+            'HOST': env('DB_HOST', default='192.168.1.100'),
+            'PORT': env('DB_PORT', default='3306'),
+        }
+    }
 
 
 # Password validation
