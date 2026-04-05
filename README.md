@@ -44,6 +44,18 @@ docker compose exec web python manage.py createsuperuser
 
 ---
 
+## 🧪 Security & Testing
+EasyLife includes a **10-point Security Audit Suite** to ensure 100% data isolation and encryption integrity.
+
+### Run the Suite
+To verify your security configuration, run:
+```bash
+docker compose exec web python manage.py test credentials
+```
+*   **Fast-Track Mode**: Tests automatically use a local **SQLite** database to ensure blazing-fast performance and total isolation from your live MySQL data. ⚡️
+
+---
+
 ## 🗄 Database & Infrastructure
 *   **MySQL DB**: Runs inside a dedicated container on port **3306** (exposed as **3307** locally).
 *   **Web App**: Listens on **[http://localhost:8010](http://localhost:8010)**.
