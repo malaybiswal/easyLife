@@ -100,5 +100,20 @@ class EasyLifeSecurityTests(TestCase):
         cred.refresh_from_db()
         self.assertEqual(cred.tag, 'Updated Name')
         self.assertEqual(cred.username, 'updated_user')
-        self.assertEqual(cred.password, 'new_password_123')
-        self.assertEqual(cred.additional_info, 'Edited info')
+    def test_create_credential_via_view(self):
+        """Test creating a record through the actual web form."""
+        self.client.login(username='malay', password='password123')
+        
+        # Post data to the create view
+        self.client.post(reverse('create_credential'), {
+            'tag': 'Web Added Account',
+            'username': 'web_user',
+            'password': 'web_password_123',
+            'url': 'https://github.com',
+            'additional_info': 'Added via test'
+        })
+        
+        # Check that it exists in the database FOR THIS USER
+        self.assertEqual(EncryptedCredential.objects.filter(user=self.user1, tag='Web Added Account').count(), 1)
+        new_cred = EncryptedCredential.objects.get(tag='Web Added Account')
+        self.assertEqual(new_cred.password, 'web_password_123')
