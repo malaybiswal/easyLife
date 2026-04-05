@@ -5,6 +5,18 @@ from credentials.models import EncryptedCredential, Expense, FileDetail
 import decimal
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, logout, logout as auth_logout
+from django.http import JsonResponse
+import json
+import time
+
+@login_required(login_url='login')
+def verify_vault_access(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        password = data.get('password')
+        if request.user.check_password(password):
+            return JsonResponse({'success': True})
+    return JsonResponse({'success': False}, status=403)
 
 def register(request):
     if request.method == 'POST':

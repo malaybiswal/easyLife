@@ -2,6 +2,7 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth.models import User
 from credentials.models import EncryptedCredential
+import json
 
 class EasyLifeSecurityTests(TestCase):
     def setUp(self):
@@ -144,3 +145,23 @@ class EasyLifeSecurityTests(TestCase):
         
         self.assertContains(response, 'Amazon Shopping')
         self.assertNotContains(response, 'Citibank Personal')
+
+    def test_vault_verification_endpoint(self):
+        """Test the AJAX password verification for the Vault Shield."""
+        self.client.login(username='malay', password='password123')
+        
+        # Test CORRECT password
+        response = self.client.post(reverse('verify_vault_access'), 
+            data=json.dumps({'password': 'password123'}),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()['success'])
+
+        # Test INCORRECT password
+        response = self.client.post(reverse('verify_vault_access'), 
+            data=json.dumps({'password': 'wrong_password'}),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 403)
+        self.assertFalse(response.json()['success'])
