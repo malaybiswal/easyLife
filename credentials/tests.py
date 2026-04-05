@@ -165,3 +165,13 @@ class EasyLifeSecurityTests(TestCase):
         )
         self.assertEqual(response.status_code, 403)
         self.assertFalse(response.json()['success'])
+
+    def test_unauthenticated_vault_verification_blocked(self):
+        """Ensure unauthenticated guests cannot even try to verify a vault."""
+        self.client.logout()
+        response = self.client.post(reverse('verify_vault_access'), 
+            data=json.dumps({'password': 'any_password'}),
+            content_type='application/json'
+        )
+        # Should redirect to login
+        self.assertEqual(response.status_code, 302)
