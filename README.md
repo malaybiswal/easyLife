@@ -17,9 +17,6 @@ EasyLife is a robust, Dockerized personal vault designed to manage your most sen
 
 ## 🛠 Getting Started
 
-> [!TIP]
-> **Docker Commands**: Modern systems (Mac and Linux with Docker Compose V2) use `docker compose`. Legacy Linux installations may still use `docker-compose` (note the hyphen). 🐳
-
 ### 1. Clone the Repository
 ```bash
 git clone https://github.com/malaybiswal/easyLife.git
@@ -36,25 +33,41 @@ cp .env.example .env
 
 ### 3. Start the Containers
 ```bash
+# Mac (Modern Docker)
 docker compose up -d --build
+
+# Linux (Legacy Docker Compose)
+docker-compose up -d --build
 ```
 
 ### 4. Initialize Database Schema
 Run the following after the containers are active to create your vault tables:
 ```bash
+# Mac
 docker compose exec web python manage.py migrate
+
+# Linux
+docker-compose exec web python manage.py migrate
 ```
 
 ### 5. Create Your Account
 Set up your primary account:
 ```bash
+# Mac
 docker compose exec web python manage.py createsuperuser
+
+# Linux
+docker-compose exec web python manage.py createsuperuser
 ```
 
 ### 6. Ingest Excel Data (Optional)
 To import your credentials from an Excel file (e.g., `personal.xlsx`):
 ```bash
+# Mac
 docker compose exec web python manage.py parse_credentials personal.xlsx --user <YOUR_USERNAME>
+
+# Linux
+docker-compose exec web python manage.py parse_credentials personal.xlsx --user <YOUR_USERNAME>
 ```
 
 ---
@@ -64,9 +77,13 @@ EasyLife includes a **13-point Security Audit Suite** to ensure 100% data isolat
 
 ### Run the Suite
 ```bash
+# Mac
 docker compose exec web python manage.py test credentials
+
+# Linux
+docker-compose exec web python manage.py test credentials
 ```
-*   **Fast-Track Mode**: Tests automatically use a local **SQLite** database to ensure blazing-fast performance and total isolation. ⚡️
+*   **Fast-Track Mode**: Tests automatically use a local **SQLite** database to ensure blazing-fast performance. ⚡️
 
 ---
 
