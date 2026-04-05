@@ -175,3 +175,16 @@ class EasyLifeSecurityTests(TestCase):
         )
         # Should redirect to login
         self.assertEqual(response.status_code, 302)
+
+    def test_logout_functionality(self):
+        """Verify that logging out actually kills the session and blocks access."""
+        self.client.login(username='malay', password='password123')
+        
+        # Logout
+        response = self.client.get(reverse('logout'), follow=True)
+        # Should lead back to login page
+        self.assertContains(response, 'Sign In')
+        
+        # Verify access is now BLOCKED
+        response = self.client.get(reverse('credential_list'))
+        self.assertRedirects(response, '/login/?next=/')
