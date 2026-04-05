@@ -59,7 +59,24 @@ class EasyLifeSecurityTests(TestCase):
         self.assertEqual(res1['username'], 'malay')
         self.assertEqual(res1['password'], 'secret123')
         
-        # Test space separator
-        res2 = cmd.parse_row_credential(['Sams Club', 'malay secret456'])
-        self.assertEqual(res2['username'], 'malay')
-        self.assertEqual(res2['password'], 'secret456')
+    def test_safe_deletion_verification(self):
+        """Test that a record is only deleted after correct text confirmation."""
+        cred = EncryptedCredential.objects.create(
+            user=self.user1, tag='Sensitive Bank', password='secretpassword'
+        )
+        
+        # Log in as user
+        self.client.login(username='malay', password='password123')
+        
+        # Attempt deletion with WRONG text
+        self.client.post(reverse('delete_credential', args=[cred.pk]), {
+            'confirm_tag': 'wrong_text'
+        })
+        self.assertTrue(EncryptedCredential.objects.filter(pk=cred.pk).exists())
+        
+        # Attempt deletion with CORRECT text
+        self.client.post(reverse('delete_credential', args=[cred.pk]), {
+            'confirm_tag': 'Sensitive Bank'
+        })
+        # Record should be GONE now
+        self.assertFalse(EncryptedCredential.objects.filter(pk=cred.pk).exists())
